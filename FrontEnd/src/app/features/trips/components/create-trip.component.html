@@ -1,0 +1,171 @@
+<div class="create-trip-container py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                @if (errorMessage()) {
+                <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    <i class="fa fa-exclamation-circle me-2"></i>{{ errorMessage() }}
+                    <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+                </div>
+                }
+
+                @if (successMessage()) {
+                <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    <i class="fa fa-check-circle me-2"></i>{{ successMessage() }}
+                    <button type="button" class="btn-close" (click)="successMessage.set('')"></button>
+                </div>
+                }
+
+                @if (loadingVehicles()) {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading vehicles...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading your vehicles...</p>
+                </div>
+                } @else if (vehicles().length === 0) {
+                <div class="card border-0 shadow-lg rounded-4 text-center p-5">
+                    <div class="mb-4">
+                        <div class="bg-light rounded-circle d-inline-flex p-4">
+                            <i class="fa fa-car fa-3x text-muted"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-3">No Vehicles Found</h3>
+                    <p class="text-muted mb-4">You need to add a vehicle before you can post a trip.</p>
+                    <a routerLink="/my-vehicles" class="btn btn-primary btn-lg rounded-pill px-5 hover-lift">
+                        <i class="fa fa-plus me-2"></i>Add Your First Vehicle
+                    </a>
+                </div>
+                } @else {
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-white p-4 border-0">
+                        <div class="text-center">
+                            <div class="bg-primary-subtle rounded-circle d-inline-flex p-3 mb-3">
+                                <i class="fa fa-map-marked-alt fa-2x text-primary"></i>
+                            </div>
+                            <h2 class="fw-bold mb-1">{{ isEditing() ? 'Edit Trip' : 'Post a New Trip' }}</h2>
+                            <p class="text-muted mb-0">{{ isEditing() ? 'Update your trip details' : 'Share your journey
+                                and save costs' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <form [formGroup]="tripForm" (ngSubmit)="onSubmit()">
+
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-primary"><i class="fa fa-route me-2"></i>Route Details</h5>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa fa-map-marker-alt me-2 text-success"></i>From
+                                    </label>
+                                    <input type="text" formControlName="villeDepart"
+                                        class="form-control form-control-lg" placeholder="Departure city"
+                                        [class.is-invalid]="villeDepart.invalid && villeDepart.touched">
+                                    @if (villeDepart.invalid && villeDepart.touched) {
+                                    <div class="invalid-feedback">Departure city is required</div>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa fa-flag-checkered me-2 text-danger"></i>To
+                                    </label>
+                                    <input type="text" formControlName="villeArrivee"
+                                        class="form-control form-control-lg" placeholder="Arrival city"
+                                        [class.is-invalid]="villeArrivee.invalid && villeArrivee.touched">
+                                    @if (villeArrivee.invalid && villeArrivee.touched) {
+                                    <div class="invalid-feedback">Arrival city is required</div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="section-header mb-4 mt-5">
+                                <h5 class="fw-bold text-primary"><i class="fa fa-clock me-2"></i>Schedule</h5>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fa fa-calendar-alt me-2"></i>Date & Time
+                                </label>
+                                <input type="datetime-local" formControlName="dateHeure"
+                                    class="form-control form-control-lg" [min]="minDateTime"
+                                    [class.is-invalid]="dateHeure.invalid && dateHeure.touched">
+                                @if (dateHeure.invalid && dateHeure.touched) {
+                                <div class="invalid-feedback">Valid date and time required</div>
+                                }
+                            </div>
+
+                            <div class="section-header mb-4 mt-5">
+                                <h5 class="fw-bold text-primary"><i class="fa fa-car me-2"></i>Vehicle</h5>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fa fa-car-side me-2"></i>Select Your Vehicle
+                                </label>
+                                <select formControlName="voitureId" class="form-select form-select-lg"
+                                    [class.is-invalid]="voitureId.invalid && voitureId.touched">
+                                    <option value="">Choose a vehicle...</option>
+                                    @for (vehicle of vehicles(); track vehicle.id) {
+                                    <option [value]="vehicle.id">
+                                        {{ vehicle.marque }} {{ vehicle.modele }} - {{ vehicle.immatriculation }} ({{
+                                        vehicle.nombrePlaces }} seats)
+                                    </option>
+                                    }
+                                </select>
+                                @if (voitureId.invalid && voitureId.touched) {
+                                <div class="invalid-feedback">Please select a vehicle</div>
+                                }
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa fa-users me-2"></i>Available Seats
+                                    </label>
+                                    <input type="number" formControlName="placesDisponibles"
+                                        class="form-control form-control-lg" min="1" max="8"
+                                        [class.is-invalid]="placesDisponibles.invalid && placesDisponibles.touched">
+                                    @if (placesDisponibles.invalid && placesDisponibles.touched) {
+                                    <div class="invalid-feedback">At least 1 seat required</div>
+                                    }
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa fa-euro-sign me-2"></i>Price per Seat (€)
+                                    </label>
+                                    <input type="number" formControlName="prixParPlace"
+                                        class="form-control form-control-lg" min="0" step="0.01" placeholder="0.00"
+                                        [class.is-invalid]="prixParPlace.invalid && prixParPlace.touched">
+                                    @if (prixParPlace.invalid && prixParPlace.touched) {
+                                    <div class="invalid-feedback">Invalid price</div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-5">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill hover-lift"
+                                    [disabled]="tripForm.invalid || loading()">
+                                    @if (loading()) {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>{{ isEditing() ?
+                                    'Updating...' : 'Creating...' }}
+                                    } @else {
+                                    <i class="fa fa-check me-2"></i>{{ isEditing() ? 'Update Trip' : 'Create Trip' }}
+                                    }
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-lg px-4 rounded-pill"
+                                    (click)="cancel()" [disabled]="loading()">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

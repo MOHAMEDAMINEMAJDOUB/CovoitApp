@@ -1,0 +1,57 @@
+# Backend - Java/Spring Boot
+gestionProjetsApp/target/
+gestionProjetsApp/.mvn/
+gestionProjetsApp/mvnw
+gestionProjetsApp/mvnw.cmd
+gestionProjetsApp/.idea/
+gestionProjetsApp/*.iml
+gestionProjetsApp/*.iws
+gestionProjetsApp/*.ipr
+gestionProjetsApp/.settings/
+gestionProjetsApp/.classpath
+gestionProjetsApp/.project
+gestionProjetsApp/bin/
+
+# Frontend - Angular
+FrontEnd/node_modules/
+FrontEnd/dist/
+FrontEnd/.angular/
+FrontEnd/.vscode/
+FrontEnd/*.log
+FrontEnd/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Package files
+*.tar.gz
+*.zip

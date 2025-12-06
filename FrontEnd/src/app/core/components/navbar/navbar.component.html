@@ -1,0 +1,85 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" routerLink="/">
+            <i class="fa fa-car-side"></i>
+            <span>CovoitApp</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ng-container *ngIf="currentUser$ | async; else homeLink">
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+                    </li>
+                </ng-container>
+                <ng-template #homeLink>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/home" routerLinkActive="active">Home</a>
+                    </li>
+                </ng-template>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/trips" routerLinkActive="active">Find a Ride</a>
+                </li>
+                <ng-container *ngIf="currentUser$ | async as user">
+                    <li class="nav-item" *ngIf="user.userType === 'DRIVER'">
+                        <a class="nav-link" routerLink="/trips/my-trips" routerLinkActive="active">My Trips</a>
+                    </li>
+                    <li class="nav-item" *ngIf="user.userType === 'PASSENGER'">
+                        <a class="nav-link" routerLink="/my-reservations" routerLinkActive="active">My Reservations</a>
+                    </li>
+                </ng-container>
+            </ul>
+
+            <div class="d-flex align-items-center gap-3">
+                <ng-container *ngIf="currentUser$ | async as user; else guestTemplate">
+                    <div class="dropdown">
+                        <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" href="#"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                style="width: 32px; height: 32px; font-weight: bold;">
+                                {{ user.prenom.charAt(0) || 'U' }}
+                            </div>
+                            <span>{{ user.prenom }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                            <li>
+                                <a class="dropdown-item" routerLink="/dashboard">
+                                    <i class="fa fa-tachometer-alt me-2 text-muted"></i>Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" routerLink="/my-reservations"
+                                    *ngIf="user.userType === 'PASSENGER'">
+                                    <i class="fa fa-ticket-alt me-2 text-muted"></i>My Reservations
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" routerLink="/my-vehicles" *ngIf="user.userType === 'DRIVER'">
+                                    <i class="fa fa-car me-2 text-muted"></i>My Vehicles
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger" (click)="logout()">
+                                    <i class="fa fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-container>
+
+                <ng-template #guestTemplate>
+                    <a routerLink="/auth/login" class="btn btn-outline-light rounded-pill px-4 btn-sm">Login</a>
+                    <a routerLink="/auth/signup"
+                        class="btn btn-light text-primary rounded-pill px-4 btn-sm fw-bold">Sign Up</a>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,14 @@
+.badge.PENDING {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge.CONFIRMED {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge.CANCELLED {
+    background-color: #dc3545;
+    color: #fff;
+}

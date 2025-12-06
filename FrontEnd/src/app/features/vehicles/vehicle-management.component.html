@@ -1,0 +1,170 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fa fa-car me-2"></i>My Vehicles
+            </h2>
+
+            @if (errorMessage()) {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ errorMessage() }}
+                <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+            </div>
+            }
+
+            @if (successMessage()) {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ successMessage() }}
+                <button type="button" class="btn-close" (click)="successMessage.set('')"></button>
+            </div>
+            }
+
+            <!-- Add Vehicle Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        @if (editingVehicle()) {
+                        <i class="fa fa-edit me-2"></i>Edit Vehicle
+                        } @else {
+                        <i class="fa fa-plus me-2"></i>Add New Vehicle
+                        }
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="marque" class="form-label">Brand <span class="text-danger">*</span></label>
+                                <input type="text" id="marque" formControlName="marque" class="form-control"
+                                    placeholder="e.g., Toyota" [class.is-invalid]="marque.invalid && marque.touched">
+                                @if (marque.invalid && marque.touched) {
+                                <div class="invalid-feedback">Brand is required</div>
+                                }
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="modele" class="form-label">Model <span class="text-danger">*</span></label>
+                                <input type="text" id="modele" formControlName="modele" class="form-control"
+                                    placeholder="e.g., Corolla" [class.is-invalid]="modele.invalid && modele.touched">
+                                @if (modele.invalid && modele.touched) {
+                                <div class="invalid-feedback">Model is required</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="immatriculation" class="form-label">License Plate <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="immatriculation" formControlName="immatriculation"
+                                    class="form-control" placeholder="e.g., AB-123-CD"
+                                    [class.is-invalid]="immatriculation.invalid && immatriculation.touched">
+                                @if (immatriculation.invalid && immatriculation.touched) {
+                                <div class="invalid-feedback">License plate is required</div>
+                                }
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label for="nombrePlaces" class="form-label">Seats <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" id="nombrePlaces" formControlName="nombrePlaces"
+                                    class="form-control" min="1" max="50"
+                                    [class.is-invalid]="nombrePlaces.invalid && nombrePlaces.touched">
+                                @if (nombrePlaces.invalid && nombrePlaces.touched) {
+                                <div class="invalid-feedback">Seats must be between 1 and 50</div>
+                                }
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label for="couleur" class="form-label">Color</label>
+                                <input type="text" id="couleur" formControlName="couleur" class="form-control"
+                                    placeholder="e.g., Black">
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" [disabled]="vehicleForm.invalid || saving()">
+                                @if (saving()) {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                Saving...
+                                } @else if (editingVehicle()) {
+                                <i class="fa fa-save me-2"></i>Update Vehicle
+                                } @else {
+                                <i class="fa fa-plus me-2"></i>Add Vehicle
+                                }
+                            </button>
+                            @if (editingVehicle()) {
+                            <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+                                <i class="fa fa-times me-2"></i>Cancel
+                            </button>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Vehicle List -->
+            @if (loading()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            }
+
+            @if (!loading() && vehicles().length === 0) {
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle me-2"></i>
+                You haven't added any vehicles yet. Add your first vehicle above to start offering rides.
+            </div>
+            }
+
+            @if (!loading() && vehicles().length > 0) {
+            <h5 class="mb-3">My Vehicles ({{ vehicles().length }})</h5>
+            <div class="row g-3">
+                @for (vehicle of vehicles(); track vehicle.id) {
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">
+                                    {{ vehicle.marque }} {{ vehicle.modele }}
+                                </h5>
+                                @if (vehicle.couleur) {
+                                <span class="badge bg-secondary">{{ vehicle.couleur }}</span>
+                                }
+                            </div>
+
+                            <div class="mb-2">
+                                <i class="fa fa-id-card me-2 text-muted"></i>
+                                <strong>{{ vehicle.immatriculation }}</strong>
+                            </div>
+
+                            <div class="mb-3">
+                                <i class="fa fa-users me-2 text-muted"></i>
+                                {{ vehicle.nombrePlaces }} seats
+                            </div>
+
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" (click)="editVehicle(vehicle)">
+                                    <i class="fa fa-edit me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" (click)="deleteVehicle(vehicle)"
+                                    [disabled]="deleting()">
+                                    @if (deleting()) {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                    } @else {
+                                    <i class="fa fa-trash me-1"></i>
+                                    }
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa fa-car me-2"></i>Available Trips</h2>
+        <a routerLink="/trips/create" class="btn btn-primary" *ngIf="isCurrentUserDriver()">
+            <i class="fa fa-plus me-2"></i>Post a Trip
+        </a>
+    </div>
+
+    <!-- Search Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
+                        <input type="text" class="form-control" placeholder="Departure City" [(ngModel)]="searchDepart">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-flag-checkered"></i></span>
+                        <input type="text" class="form-control" placeholder="Arrival City" [(ngModel)]="searchArrivee">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" (click)="search()">
+                        <i class="fa fa-search me-2"></i>Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trips List -->
+    @if (loading()) {
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    } @else if (trips().length === 0) {
+    <div class="alert alert-info text-center" role="alert">
+        <i class="fa fa-info-circle me-2"></i>No trips available at the moment. Please check back later!
+    </div>
+    } @else {
+    <div class="row">
+        @for (trip of trips(); track trip.id) {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="card-title text-primary mb-0">
+                            {{ trip.villeDepart }} <i class="fa fa-arrow-right mx-2 text-muted"></i> {{
+                            trip.villeArrivee }}
+                        </h5>
+                        <span class="badge bg-success rounded-pill">{{ trip.prixParPlace | currency:'EUR' }}</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            <i class="fa fa-calendar-alt me-2"></i>{{ trip.dateHeure | date:'medium' }}
+                        </div>
+                        <div class="text-muted">
+                            <i class="fa fa-chair me-2"></i>{{ trip.placesDisponibles }} seats left
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mt-3 pt-3 border-top">
+                        <div class="avatar-circle me-2">
+                            {{ trip.conducteur?.nom?.charAt(0) || 'D' }}
+                        </div>
+                        <div>
+                            <small class="d-block text-muted">Driver</small>
+                            <strong>{{ trip.conducteur?.prenom }} {{ trip.conducteur?.nom }}</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 pb-3">
+                    @if (isDriver(trip)) {
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fa fa-user-circle me-2"></i>Your Trip
+                    </button>
+                    } @else if (isReserved(trip)) {
+                    <button class="btn btn-danger w-100" (click)="cancelReservation(trip)">
+                        <i class="fa fa-times-circle me-2"></i>Cancel Reservation
+                    </button>
+                    } @else if (trip.placesDisponibles === 0) {
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fa fa-ban me-2"></i>Full - No Seats Available
+                    </button>
+                    } @else {
+                    <button class="btn btn-primary w-100" (click)="reserve(trip)">
+                        <i class="fa fa-check-circle me-2"></i>Reserve
+                    </button>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>

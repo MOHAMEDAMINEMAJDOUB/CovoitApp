@@ -1,0 +1,75 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa fa-ticket-alt me-2"></i>My Reservations</h2>
+        <a routerLink="/trips" class="btn btn-primary">
+            <i class="fa fa-search me-2"></i>Find More Trips
+        </a>
+    </div>
+
+    @if (loading()) {
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    } @else if (reservations().length === 0) {
+    <div class="text-center py-5">
+        <div class="mb-3">
+            <i class="fa fa-inbox fa-3x text-muted"></i>
+        </div>
+        <h3>No reservations yet</h3>
+        <p class="text-muted">You haven't booked any trips. Start exploring available rides!</p>
+        <a routerLink="/trips" class="btn btn-outline-primary mt-2">
+            Browse Available Trips
+        </a>
+    </div>
+    } @else {
+    <div class="row">
+        @for (reservation of reservations(); track reservation.id) {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="card-title text-primary mb-0">
+                            {{ reservation.trajet?.villeDepart }} <i class="fa fa-arrow-right mx-2 text-muted"></i> {{
+                            reservation.trajet?.villeArrivee }}
+                        </h5>
+                        <span class="badge bg-success rounded-pill">{{ reservation.trajet?.prixParPlace | currency:'EUR'
+                            }}</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            <i class="fa fa-calendar-alt me-2"></i>{{ reservation.trajet?.dateHeure | date:'medium' }}
+                        </div>
+                        <div class="text-muted mb-2">
+                            <i class="fa fa-clock me-2"></i>Booked: {{ reservation.dateReservation | date:'short' }}
+                        </div>
+                        <div class="mt-2">
+                            <span class="badge" [ngClass]="getStatusClass(reservation.etat)">
+                                {{ reservation.etat || 'CONFIRMED' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 pb-3">
+                    @if (reservation.etat === 'CANCELLED') {
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fa fa-ban me-2"></i>Cancelled
+                    </button>
+                    } @else if (reservation.trajet?.dateHeure && isTripPassed(reservation.trajet!.dateHeure)) {
+                    <button class="btn btn-success w-100" disabled>
+                        <i class="fa fa-check-circle me-2"></i>Completed
+                    </button>
+                    } @else {
+                    <button class="btn btn-outline-danger w-100" (click)="cancelReservation(reservation)">
+                        <i class="fa fa-times-circle me-2"></i>Cancel Reservation
+                    </button>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>

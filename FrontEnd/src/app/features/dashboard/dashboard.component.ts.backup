@@ -1,0 +1,286 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../core/services/auth.service';
+import { User } from '../../core/models/user.model';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
+    <div class="dashboard-container">
+      <!-- Hero Section -->
+      <div class="hero-section py-5">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-8">
+              <h1 class="display-4 fw-bold text-white mb-3 animate-fade-up">
+                Welcome back, {{ currentUser?.prenom || 'User' }}! 👋
+              </h1>
+              <p class="lead text-white opacity-90 animate-fade-up delay-100">
+                @if (isDriver()) {
+                  Manage your trips, track reservations, and connect with passengers.
+                } @else if (isPassenger()) {
+                  Find rides, manage your bookings, and travel smart.
+                } @else {
+                  Your carpooling dashboard is ready.
+                }
+              </p>
+            </div>
+            <div class="col-lg-4 text-end">
+              <div class="stats-badge bg-white rounded-4 p-4 shadow-lg d-inline-block animate-fade-up delay-200">
+                <i class="fa fa-star fa-2x text-warning mb-2"></i>
+                <h3 class="fw-bold mb-0">{{ isDriver() ? 'Driver' : 'Passenger' }}</h3>
+               <small class="text-muted">Account Type</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="container py-5">
+        @if (isDriver()) {
+          <div class="row g-4 mb-5">
+            <div class="col-md-3">
+              <div class="stat-card bg-white rounded-4 p-4 shadow-sm hover-lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="stat-icon bg-primary-light rounded-3 p-3">
+                    <i class="fa fa-route fa-2x text-primary"></i>
+                  </div>
+                  <span class="badge bg-primary">Total</span>
+                </div>
+                <h3 class="fw-bold mb-1">{{ getTotalTrips() }}</h3>
+                <p class="text-muted mb-0 small">Total Trips</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card bg-white rounded-4 p-4 shadow-sm hover-lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="stat-icon bg-success-light rounded-3 p-3">
+                    <i class="fa fa-check-circle fa-2x text-success"></i>
+                  </div>
+                  <span class="badge bg-success">Live</span>
+                </div>
+                <h3 class="fw-bold mb-1">{{ getActiveTrips() }}</h3>
+                <p class="text-muted mb-0 small">Active Trips</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card bg-white rounded-4 p-4 shadow-sm hover-lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="stat-icon bg-info-light rounded-3 p-3">
+                    <i class="fa fa-users fa-2x text-info"></i>
+                  </div>
+                  <span class="badge bg-info">Bookings</span>
+                </div>
+                <h3 class="fw-bold mb-1">0</h3>
+                <p class="text-muted mb-0 small">Reservations</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card bg-white rounded-4 p-4 shadow-sm hover-lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="stat-icon bg-warning-light rounded-3 p-3">
+                    <i class="fa fa-euro-sign fa-2x text-warning"></i>
+                  </div>
+                  <span class="badge bg-warning">Total</span>
+                  </div>
+                  <span class="badge bg-primary">All</span>
+                </div>
+                <h3 class="fw-bold mb-1">0</h3>
+                <p class="text-muted mb-0 small">Total Reservations</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stat-card bg-white rounded-4 p-4 shadow-sm hover-lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="stat-icon bg-warning-light rounded-3 p-3">
+                    <i class="fa fa-clock fa-2x text-warning"></i>
+                  </div>
+                  <span class="badge bg-warning">Soon</span>
+                </div>
+                <h3 class="fw-bold mb-1">0</h3>
+                <p class="text-muted mb-0 small">Upcoming Trips</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="stat-card bg-white rounded-4 p-4 shadow-sm hover-lift">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="stat-icon bg-success-light rounded-3 p-3">
+                    <i class="fa fa-check fa-2x text-success"></i>
+                  </div>
+                  <span class="badge bg-success">Done</span>
+                </div>
+                <h3 class="fw-bold mb-1">0</h3>
+                <p class="text-muted mb-0 small">Completed</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-4"><i class="fa fa-bolt me-2 text-primary"></i>Quick Actions</h5>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <button class="btn btn-primary btn-lg w-100 rounded-pill hover-lift" routerLink="/trips">
+                    <i class="fa fa-search me-2"></i>Browse All Trips
+                  </button>
+                </div>
+                <div class="col-md-6">
+                  <button class="btn btn-outline-primary btn-lg w-100 rounded-pill" routerLink="/my-reservations">
+                    <i class="fa fa-ticket-alt me-2"></i>My Reservations
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  styles: [`
+    .dashboard-container {
+      min-height: 100vh;
+      background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-bottom-left-radius: 50px;
+      border-bottom-right-radius: 50px;
+    }
+
+    .stats-badge {
+      transition: transform 0.3s ease;
+    }
+
+    .stats-badge:hover {
+      transform: scale(1.05);
+    }
+
+    .stat-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bg-primary-light {
+      background-color: rgba(102, 126, 234, 0.1);
+    }
+
+    .bg-success-light {
+      background-color: rgba(25, 135, 84, 0.1);
+    }
+
+    .bg-info-light {
+      background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    .bg-warning-light {
+      background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .animate-fade-up {
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    .delay-100 { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+    .delay-200 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `]
+})
+export class DashboardComponent implements OnInit {
+  currentUser: User | null = null;
+  myTrips: any[] = [];
+  loading = false;
+  errorMessage = '';
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private http: HttpClient
+  ) { }
+
+  ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
+    if (this.isDriver() && this.currentUser) {
+      this.loadMyTrips();
+    }
+  }
+
+  loadMyTrips(): void {
+    if (!this.currentUser?.id) return;
+
+    this.loading = true;
+    const apiUrl = 'http://localhost:8081';
+
+    this.http.get<any[]>(`${apiUrl}/trajets/conducteur/${this.currentUser.id}`).subscribe({
+      next: (trips) => {
+        this.myTrips = trips;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading trips:', err);
+        this.errorMessage = 'Failed to load trips';
+        this.loading = false;
+      }
+    });
+  }
+
+  getTotalTrips(): number {
+    return this.myTrips.length;
+  }
+
+  getActiveTrips(): number {
+    return this.myTrips.filter(t => new Date(t.dateHeure) > new Date()).length;
+  }
+
+  isDriver(): boolean {
+    return this.currentUser?.userType === 'DRIVER';
+  }
+
+  isPassenger(): boolean {
+    return this.currentUser?.userType === 'PASSENGER';
+  }
+
+  createNewTrip(): void {
+    this.router.navigate(['/trips/create']);
+  }
+
+  manageVehicle(): void {
+    this.router.navigate(['/my-vehicles']);
+  }
+
+  searchTrips(): void {
+    this.router.navigate(['/trips']);
+  }
+
+  viewMyReservations(): void {
+    this.router.navigate(['/my-reservations']);
+  }
+}

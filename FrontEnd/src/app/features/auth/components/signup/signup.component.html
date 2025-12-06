@@ -1,0 +1,141 @@
+<div class="signup-container">
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Left Side - Branding -->
+            <div
+                class="col-lg-5 d-none d-lg-flex bg-gradient-primary align-items-center justify-content-center text-white p-5">
+                <div class="text-center animate-fade-up">
+                    <i class="fa fa-users fa-5x mb-4 opacity-90"></i>
+                    <h1 class="display-5 fw-bold mb-3">Join Our Community</h1>
+                    <p class="lead">Start your carpooling journey today</p>
+                </div>
+            </div>
+
+            <!-- Right Side - Signup Form -->
+            <div class="col-lg-7 d-flex align-items-center justify-content-center p-4">
+                <div class="signup-form-container animate-fade-up delay-100">
+                    <div class="text-center mb-3">
+                        <h3 class="fw-bold mb-1">Create Account</h3>
+                        <small class="text-muted">Sign up to start sharing rides</small>
+                    </div>
+
+                    @if (errorMessage()) {
+                    <div class="alert alert-danger alert-dismissible">
+                        <i class="fa fa-exclamation-circle me-2"></i>{{ errorMessage() }}
+                        <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+                    </div>
+                    }
+
+                    @if (successMessage()) {
+                    <div class="alert alert-success">
+                        <i class="fa fa-check-circle me-2"></i>{{ successMessage() }}
+                    </div>
+                    }
+
+                    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                        <!-- Role Selection -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">I want to join as:</label>
+                            <div class="d-flex gap-2">
+                                <input type="radio" class="btn-check" formControlName="userType" value="PASSENGER"
+                                    id="passenger">
+                                <label class="btn btn-outline-primary btn-sm flex-fill py-1" for="passenger">
+                                    <i class="fa fa-user me-1"></i>
+                                    <small><strong>Passenger</strong></small>
+                                </label>
+
+                                <input type="radio" class="btn-check" formControlName="userType" value="DRIVER"
+                                    id="driver">
+                                <label class="btn btn-outline-primary btn-sm flex-fill py-1" for="driver">
+                                    <i class="fa fa-car me-1"></i>
+                                    <small><strong>Driver</strong></small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 mb-2">
+                                <label class="form-label small">First Name</label>
+                                <input type="text" formControlName="prenom" class="form-control form-control-sm"
+                                    [class.is-invalid]="prenom.invalid && prenom.touched">
+                                @if (prenom.invalid && prenom.touched) {
+                                <div class="invalid-feedback">Required</div>
+                                }
+                            </div>
+
+                            <div class="col-6 mb-2">
+                                <label class="form-label small">Last Name</label>
+                                <input type="text" formControlName="nom" class="form-control form-control-sm"
+                                    [class.is-invalid]="nom.invalid && nom.touched">
+                                @if (nom.invalid && nom.touched) {
+                                <div class="invalid-feedback">Required</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small">Email</label>
+                            <input type="email" formControlName="email" class="form-control form-control-sm"
+                                placeholder="your@email.com" [class.is-invalid]="email.invalid && email.touched">
+                            @if (email.invalid && email.touched) {
+                            <div class="invalid-feedback">Valid email required</div>
+                            }
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small">Phone</label>
+                            <input type="tel" formControlName="telephone" class="form-control form-control-sm"
+                                placeholder="12345678" [class.is-invalid]="telephone.invalid && telephone.touched">
+                            @if (telephone.invalid && telephone.touched) {
+                            <div class="invalid-feedback">8 digits required</div>
+                            }
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small">Password</label>
+                            <input type="password" formControlName="password" class="form-control form-control-sm"
+                                [class.is-invalid]="password.invalid && password.touched">
+                            @if (password.invalid && password.touched) {
+                            <div class="invalid-feedback">Min 8 characters</div>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Confirm Password</label>
+                            <input type="password" formControlName="confirmPassword"
+                                class="form-control form-control-sm"
+                                [class.is-invalid]="(confirmPassword.invalid || signupForm.errors?.['passwordMismatch']) && confirmPassword.touched">
+                            @if (confirmPassword.touched && signupForm.errors?.['passwordMismatch']) {
+                            <div class="invalid-feedback d-block">Passwords don't match</div>
+                            }
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="terms" formControlName="termsAccepted">
+                            <label class="form-check-label small" for="terms">
+                                I agree to the <a href="#" class="text-primary">Terms</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill hover-lift mb-2"
+                            [disabled]="signupForm.invalid || loading()">
+                            @if (loading()) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>Creating...
+                            } @else {
+                            <i class="fa fa-user-plus me-2"></i>Create Account
+                            }
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-2 pt-2 border-top">
+                        <small class="text-muted">
+                            Already have an account?
+                            <a routerLink="/auth/login" class="text-primary fw-semibold text-decoration-none">Sign
+                                In</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

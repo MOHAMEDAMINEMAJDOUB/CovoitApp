@@ -1,0 +1,94 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fa fa-ticket-alt me-2"></i>My Reservations
+            </h2>
+
+            @if (loading()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            }
+
+            @if (errorMessage()) {
+            <div class="alert alert-danger" role="alert">
+                {{ errorMessage() }}
+            </div>
+            }
+
+            @if (successMessage()) {
+            <div class="alert alert-success" role="alert">
+                {{ successMessage() }}
+            </div>
+            }
+
+            @if (!loading() && reservations().length === 0) {
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle me-2"></i>
+                You haven't made any reservations yet.
+                <a routerLink="/trips" class="alert-link ms-2">Browse available trips</a>
+            </div>
+            }
+
+            @if (!loading() && reservations().length > 0) {
+            <div class="row g-3">
+                @for (reservation of reservations(); track reservation.id) {
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">
+                                    <i class="fa fa-route me-2 text-primary"></i>
+                                    {{ reservation.trajet?.villeDepart }} → {{ reservation.trajet?.villeArrivee }}
+                                </h5>
+                                @if (reservation.etat === 'CONFIRMED') {
+                                <span class="badge bg-success">Confirmed</span>
+                                } @else if (reservation.etat === 'PENDING') {
+                                <span class="badge bg-warning">Pending</span>
+                                } @else if (reservation.etat === 'CANCELLED') {
+                                <span class="badge bg-secondary">Cancelled</span>
+                                }
+                            </div>
+
+                            <div class="mb-2">
+                                <i class="fa fa-calendar me-2 text-muted"></i>
+                                <small>{{ formatDate(reservation.trajet?.dateHeure) }}</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <i class="fa fa-euro-sign me-2 text-muted"></i>
+                                <small>{{ reservation.trajet?.prixParPlace }}€ per seat</small>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fa fa-clock me-1"></i>
+                                    Booked: {{ formatDate(reservation.dateReservation) }}
+                                </small>
+                            </div>
+
+                            @if (reservation.etat !== 'CANCELLED') {
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-danger" (click)="cancelReservation(reservation)"
+                                    [disabled]="cancelling()">
+                                    @if (cancelling()) {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                    } @else {
+                                    <i class="fa fa-times me-1"></i>
+                                    }
+                                    Cancel Reservation
+                                </button>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>
